@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'habit_tracker_backend.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'habit_tracker',   # Create this database in PostgreSQL
+        'NAME': 'habit_tracker',  
         'USER': 'postgres',
         'PASSWORD': 'datadatabase',
         'HOST': 'localhost',

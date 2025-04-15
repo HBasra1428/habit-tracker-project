@@ -1,5 +1,10 @@
 from django.shortcuts import render
 from rest_framework import generics
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from datetime import date, timedelta
+
 from .models import (
     Person, Admin, User, Group, Habit, Goals,
     Reminder, Comment, RewardsPenalties, Streak, Achievement
@@ -50,6 +55,15 @@ class HabitListCreateView(generics.ListCreateAPIView):
 class HabitDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Habit.objects.all()
     serializer_class = HabitSerializer
+    
+    
+class HabitLogListCreateView(generics.ListCreateAPIView):
+    queryset = HabitLog.objects.all()
+    serializer_class = HabitLogSerializer
+
+class HabitLogDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = HabitLog.objects.all()
+    serializer_class = HabitLogSerializer
 
 class GoalsListCreateView(generics.ListCreateAPIView):
     queryset = Goals.objects.all()
@@ -99,3 +113,34 @@ class AchievementDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Achievement.objects.all()
     serializer_class = AchievementSerializer
 
+class MarkHabitAsDoneView(APIView):
+    def post(self, request, habit_id):
+        try:
+            habit = Habit.objects.get(id=habit_id)
+        except Habit.DoesNotExist:
+            return Response({'error': 'Habit not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        today = date.today()
+
+        # no duplicate logs for today
+        if HabitLog.objects.filter(habit=habit, date=today).exists():
+            return Response({'message': 'Habit already marked as done today'}, status=status.HTTP_200_OK)
+
+        # creating todays log
+        HabitLog.objects.create(habit=habit, date=today)
+
+        # checking if yesterday was completed
+        yesterday = today - timedelta(days=1)
+        if HabitLog.objects.filter(habit=habit, date=yesterday).exists():
+            habit.current_streak += 1
+        else:
+            habit.current_streak = 1  # restart streak
+
+        # update longest streak if needed
+        if habit.current_streak > habit.longest_streak:
+            habit.longest_streak = habit.current_streak
+
+        habit.completed = True  # optional: mark as done today
+        habit.save()
+
+        return Response({'message': 'Habit marked as done!', 'current_streak': habit.current_streak, 'longest_streak': habit.longest_streak}, status=status.HTTP_200_OK)
