@@ -29,6 +29,11 @@ class HabitSerializer(serializers.ModelSerializer):
         model = Habit
         fields = '__all__'
 
+class HabitLogSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HabitLog
+        fields = '__all__'
+        
 class GoalsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Goals
