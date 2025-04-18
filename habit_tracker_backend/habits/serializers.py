@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import (
     Person, Admin, User, Group, Habit, Goals,
-    Reminder, Comment, RewardsPenalties, Streak, Achievement
+    Reminder, Comment, RewardsPenalties, Streak, Achievement, HabitLog
 )
 
 class PersonSerializer(serializers.ModelSerializer):
