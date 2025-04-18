@@ -1,49 +1,21 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import HabitViewSet
-from .views import MarkHabitAsDoneView
+from . import views
 
 router = DefaultRouter()
-router.register(r'habits', HabitViewSet)
-router.register(r'people', PersonViewSet)
-router.register(r'streaks', StreakViewSet)
+router.register(r'people', views.PersonViewSet)
+router.register(r'admins', views.AdminViewSet)
+router.register(r'users', views.UserViewSet)
+router.register(r'groups', views.GroupViewSet)
+router.register(r'habits', views.HabitViewSet)
+router.register(r'habit-logs', views.HabitLogViewSet)
+router.register(r'goals', views.GoalsViewSet)
+router.register(r'reminders', views.ReminderViewSet)
+router.register(r'comments', views.CommentViewSet)
+router.register(r'rewards-penalties', views.RewardsPenaltiesViewSet)
+router.register(r'streaks', views.StreakViewSet)
+router.register(r'achievements', views.AchievementViewSet)
 
 urlpatterns = [
-    path('persons/', views.PersonListCreateView.as_view()),
-    path('persons/<int:pk>/', views.PersonDetailView.as_view()),
-
-    path('admins/', views.AdminListCreateView.as_view()),
-    path('admins/<int:pk>/', views.AdminDetailView.as_view()),
-
-    path('users/', views.UserListCreateView.as_view()),
-    path('users/<int:pk>/', views.UserDetailView.as_view()),
-
-    path('groups/', views.GroupListCreateView.as_view()),
-    path('groups/<int:pk>/', views.GroupDetailView.as_view()),
-
-    path('habits/', views.HabitListCreateView.as_view()),
-    path('habits/<int:pk>/', views.HabitDetailView.as_view()),
-
-    path('habitlogs/', views.HabitLogListCreateView.as_view()),
-    path('habitlogs/<int:pk>/', views.HabitLogDetailView.as_view()),
-    
-    path('goals/', views.GoalsListCreateView.as_view()),
-    path('goals/<int:pk>/', views.GoalsDetailView.as_view()),
-
-    path('reminders/', views.ReminderListCreateView.as_view()),
-    path('reminders/<int:pk>/', views.ReminderDetailView.as_view()),
-
-    path('comments/', views.CommentListCreateView.as_view()),
-    path('comments/<int:pk>/', views.CommentDetailView.as_view()),
-
-    path('rewardspenalties/', views.RewardsPenaltiesListCreateView.as_view()),
-    path('rewardspenalties/<int:pk>/', views.RewardsPenaltiesDetailView.as_view()),
-
-    path('streaks/', views.StreakListCreateView.as_view()),
-    path('streaks/<int:pk>/', views.StreakDetailView.as_view()),
-
-    path('achievements/', views.AchievementListCreateView.as_view()),
-    path('achievements/<int:pk>/', views.AchievementDetailView.as_view()),
-    
-    path('habits/<int:habit_id>/mark_done/', MarkHabitAsDoneView.as_view(), name='mark-habit-done'),
+    path('', include(router.urls)),
 ]
