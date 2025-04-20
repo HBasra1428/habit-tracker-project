@@ -24,7 +24,10 @@ staticfiles/
 
 # Pipenv
 Pipfile.lock
+<<<<<<< Updated upstream
 
 # Migrations (optional if you want to reset migrations)
 */migrations/*.pyc
 */migrations/__pycache__/
+=======
+>>>>>>> Stashed changes

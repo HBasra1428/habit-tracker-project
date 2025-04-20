@@ -3,6 +3,11 @@ from django.contrib.auth.models import User
 from django.contrib.postgres.fields import ArrayField
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+<<<<<<< Updated upstream
+=======
+from datetime import timedelta
+from django.utils import timezone
+>>>>>>> Stashed changes
 
 class Person(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
@@ -34,7 +39,11 @@ class Group(models.Model):
     group_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=100, default="New Group")
     created_date = models.DateTimeField(auto_now_add=True)
+<<<<<<< Updated upstream
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_groups')
+=======
+    created_by = models.ForeignKey(User, on_delete=models.CASCADE)
+>>>>>>> Stashed changes
 
     def __str__(self):
         return self.name
@@ -63,10 +72,15 @@ class Habit(models.Model):
     start_date = models.DateField(auto_now_add=True)
     end_date = models.DateField(null=True, blank=True)
     
+<<<<<<< Updated upstream
     # Changed to link to Django User instead of Person
     user = models.ForeignKey(User, related_name='habits', on_delete=models.CASCADE)
     
     # Optional group relationship
+=======
+    # changed to link to Django User instead of Person
+    user = models.ForeignKey(User, related_name='habits', on_delete=models.CASCADE)
+>>>>>>> Stashed changes
     group = models.ForeignKey(Group, related_name='habits', on_delete=models.SET_NULL, null=True, blank=True)
     
     repeat_days = ArrayField(
@@ -80,6 +94,23 @@ class Habit(models.Model):
     longest_streak = models.PositiveIntegerField(default=0)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    def check_and_reset_streak(self):
+        today = timezone.now().date()
+        yesterday = today - timedelta(days=1)
+        weekday = today.strftime('%a')
+
+    # only resetting it if the habit is supposed to be active today
+        if self.repeat_days and weekday not in self.repeat_days:
+            return  # if the habit is not scheduled today, do nothing
+
+        logged_today = self.logs.filter(date=today).exists()
+        logged_yesterday = self.logs.filter(date=yesterday).exists()
+
+        if not logged_today and not logged_yesterday:
+            if self.current_streak > 0:
+                self.current_streak = 0
+                self.save()
+            
     def __str__(self):
         return self.name
 
