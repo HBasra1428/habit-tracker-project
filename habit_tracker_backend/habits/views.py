@@ -3,8 +3,6 @@ from rest_framework import generics, viewsets, status, filters
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated
-
 from datetime import date, timedelta, datetime
 
 from .models import (
@@ -17,74 +15,34 @@ from .serializers import (
     CommentSerializer, RewardsPenaltiesSerializer, StreakSerializer, AchievementSerializer
 )
 
-class UserViewSet(viewsets.ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    permission_classes = [IsAuthenticated]
-    
-    # Only allow users to view/edit their own person unless they're staff
-    def get_queryset(self):
-        user = self.request.user
-        if user.is_staff:
-            return User.objects.all()
-        return User.objects.filter(id=user.id)
-    
-    @action(detail=True, methods=['get'])
-    def person(self, request, pk=None):
-        user = self.get_object()
-        person = user.person
-        serializer = PersonSerializer(person)
-        return Response(serializer.data)
+# ViewSet implementation for consistent API
+class PersonViewSet(viewsets.ModelViewSet):
+    queryset = Person.objects.all()
+    serializer_class = PersonSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['name', 'email']
     
     @action(detail=True, methods=['get'])
     def habits(self, request, pk=None):
-        user = self.get_object()
-        habits = Habit.objects.filter(user=user)
+        person = self.get_object()
+        habits = Habit.objects.filter(user=person)
         serializer = HabitSerializer(habits, many=True)
         return Response(serializer.data)
     
     @action(detail=True, methods=['get'])
     def groups(self, request, pk=None):
-        user = self.get_object()
-        groups = user.person.groups.all()
+        person = self.get_object()
+        groups = person.groups.all()
         serializer = GroupSerializer(groups, many=True)
         return Response(serializer.data)
-    
-    # Dashboard stats endpoint
-    @action(detail=True, methods=['get'])
-    def dashboard(self, request, pk=None):
-        user = self.get_object()
-        
-        # Get basic habit stats
-        habits = Habit.objects.filter(user=user)
-        active_habits = habits.filter(status='active').count()
-        completed_habits = habits.filter(status='completed').count()
-        
-        # Get streak info
-        current_streak_data = []
-        for habit in habits:
-            current_streak_data.append({
-                'habit_name': habit.name,
-                'current_streak': habit.current_streak,
-                'longest_streak': habit.longest_streak
-            })
-        
-        # Get recent logs
-        recent_logs = HabitLog.objects.filter(
-            habit__user=user
-        ).order_by('-date')[:7]
-        
-        recent_log_data = []
-        for log in recent_logs:
-            recent_log_data.append({
-                'habit_name': log.habit.name,
-                'date': log.date,
-                'notes': log.notes
-            })
 
 class AdminViewSet(viewsets.ModelViewSet):
     queryset = Admin.objects.all()
     serializer_class = AdminSerializer
+
+class UserViewSet(viewsets.ModelViewSet):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
 
 class GroupViewSet(viewsets.ModelViewSet):
     queryset = Group.objects.all()
@@ -121,9 +79,9 @@ class HabitViewSet(viewsets.ModelViewSet):
         status_param = self.request.query_params.get('status')
         
         if user_id:
-            queryset = queryset.filter(user__id=user_id)
+            queryset = queryset.filter(user__user_id=user_id)
         if group_id:
-            queryset = queryset.filter(group__id=group_id)
+            queryset = queryset.filter(group__group_id=group_id)
         if status_param:
             queryset = queryset.filter(status=status_param)
             
@@ -151,7 +109,7 @@ class HabitViewSet(viewsets.ModelViewSet):
             habit.longest_streak = habit.current_streak
             
             # updating users strek as well
-        person = habit.user.person
+        person = habit.user
         if habit.longest_streak > person.longest_streak:
             person.longest_streak = habit.longest_streak
             person.save()
