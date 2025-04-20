@@ -1,0 +1,30 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Django stuff
+*.log
+local_settings.py
+db.sqlite3
+media/
+staticfiles/
+
+# Environment variables
+.env
+
+# OS files
+.DS_Store
+
+# VSCode settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Pipenv
+Pipfile.lock
+
+# Migrations (optional if you want to reset migrations)
+*/migrations/*.pyc
+*/migrations/__pycache__/
