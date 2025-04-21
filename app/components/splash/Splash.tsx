@@ -1,46 +1,85 @@
 'use client';
 import React from 'react';
-import { useRouter } from 'next/navigation';
-import Learn from '../AboutUs/Learn';
+import {useRouter} from 'next/navigation';
+import {useState} from "react";
+import Learn from "@/app/components/AboutUs/Learn";
 
 const Splash: React.FC = () => {
-  const router = useRouter();
+    const router = useRouter();
 
-  const handleSplashClick = () => {
-    router.push('/Learn');
-  };
+    const handleSplashClick = () => {
+        router.push('/Learn');
+    };
+    const [habits, setHabits] = useState([
+        {id: 1, name: "Morning Run", completed: true},
+        {id: 2, name: "Meditation", completed: false},
+        {id: 3, name: "Drink 2L Water", completed: false},
+    ]);
 
-  return (
-    <div className="bg-gradient-to-br from-[#00e2a2] to-[#1f8bfe] p-6 rounded-2xl shadow-xl cursor-pointer">
-      <h1 className="text-6xl text-white font-bold text-center">
-        Welcome to the Habit Tracker!
-      </h1>
+    const toggleHabit = (id) => {
+        setHabits((prev) =>
+            prev.map((habit) =>
+                habit.id === id ? {...habit, completed: !habit.completed} : habit
+            )
+        );
+    };
 
-      <nav className="flex flex-col md:flex-row justify-center items-center gap-6 mt-6 text-white">
-        <p className="text-2xl md:text-4xl text-center md:text-left">
-          Elevate your time management to the next level.
-          <br />
-          <br />
-          Lorem ipsum dolor sit amet consectetur adipisicing elit. Est, voluptatem, recusandae corporis neque, minima sint explicabo odio excepturi eaque tempora optio quod quo repellendus quaerat! Quia hic culpa autem dolores!
-        </p>
-        <img
-          src="/write.png"
-          width={200}
-          height={200}
-          alt="Writing icon"
-          className="rounded-md"
-        />
-      </nav> 
+    return (
+        // splash
+        <div className="cursor-pointer">
+            {/* text and checklist */}
+            <div className="flex flex-1">
+                {/* heading and text */}
+                <div className="flex flex-col m-4 bg-gradient-to-br from-[#00e2a2] to-[#1f8bfe] p-10 rounded-2xl shadow-xl">
+                    {/* heading */}
+                    <h1 className="text-6xl text-white font-bold text-left">
+                    Welcome to the Habit Tracker!
+                </h1>
+                    {/* text */}
+                    <nav className="flex flex-col md:flex-row items-center gap-6 mt-6 text-white">
+                        <p className="text-2xl md:text-4xl text-center md:text-left">
+                            Elevate your lifestyle to the next level.
+                            <br/>
+                        </p>
+                    </nav>
+                </div>
 
-      <div className="flex ml-40 mt-5">
-        <button className="bg-white text-[#372cff] px-6 py-3 rounded-lg shadow-md hover:bg-gray-100 transition duration-300" onClick={handleSplashClick}>
-            <link rel="stylesheet" href="/Learn" />
-            Learn more
-        </button>
+                {/* checklist div*/}
+                <div
+                    className="bg-white text-blue-800 p-6 rounded-2xl shadow-md max-w-md w-full border border-[#1f8bfe] m-4 ">
+                    <h2 className="text-xl font-bold mb-4">Today's Habit Checklist</h2>
+                    <ul className="space-y-3">
+                        {habits.map((habit) => (
+                            <li key={habit.id} className="flex items-center gap-3">
+                                <input
+                                    type="checkbox"
+                                    checked={habit.completed}
+                                    onChange={() => toggleHabit(habit.id)}
+                                    className="w-5 h-5 accent-green-400 border border-blue-400"
+                                />
+                                <span
+                                    className={`text-base ${
+                                        habit.completed ? "line-through text-gray-500" : ""
+                                    }`}
+                                >
+              {habit.name}
+            </span>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            </div>
+            {/* learn more */}
+            <div className="flex ml-40 mt-5">
+                <button
+                    className="bg-white text-blue-800 px-6 py-3 rounded-lg shadow-md hover:bg-gray-100 transition duration-300"
+                    onClick={handleSplashClick}>
+                    <link rel="stylesheet" href="/Learn"/>
+                    Learn more
+                </button>
 
-      </div>
-    </div>
-  );
+            </div>
+        </div>
+    );
 };
-
 export default Splash;
