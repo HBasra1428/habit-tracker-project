@@ -1,10 +1,10 @@
 import React from "react";
 import Link from "next/link";
-import { Facebook, Twitter, Youtube } from "lucide-react";
+import { Facebook, Twitter, Youtube,  } from "lucide-react";
 
 const Footer = () => {
   return (
-    <footer className="bg-[hsl(0_0%_3.9%)] text-[hsl(0_0%_98%)] py-12">
+    <footer className="bg-white text-gray-500 py-12">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
           {/* Company Info */}
