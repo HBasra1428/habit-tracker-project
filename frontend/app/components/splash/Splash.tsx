@@ -28,9 +28,9 @@ const Splash: React.FC = () => {
         // splash
         <div className="cursor-pointer">
             {/* text and checklist */}
-            <div className="flex flex-1">
+            <div className="flex flex-1 m-6">
                 {/* heading and text */}
-                <div className="flex flex-col m-4 bg-gradient-to-br from-[#00e2a2] to-[#1f8bfe] p-10 rounded-2xl shadow-xl">
+                <div className="flex flex-col m-3 bg-gradient-to-br from-[#00e2a2] to-[#1f8bfe] p-10 rounded-2xl shadow-xl">
                     {/* heading */}
                     <h1 className="text-6xl text-white font-bold text-left">
                     Welcome to the Habit Tracker!
@@ -46,7 +46,7 @@ const Splash: React.FC = () => {
 
                 {/* checklist div*/}
                 <div
-                    className="bg-white text-blue-800 p-6 rounded-2xl shadow-md max-w-md w-full border border-[#1f8bfe] m-4 ">
+                    className="bg-white text-blue-800 p-6 rounded-2xl shadow-md max-w-md w-full border border-[#1f8bfe] m-3 ">
                     <h2 className="text-xl font-bold mb-4">Today's Habit Checklist</h2>
                     <ul className="space-y-3">
                         {habits.map((habit) => (
@@ -68,18 +68,8 @@ const Splash: React.FC = () => {
                         ))}
                     </ul>
                 </div>
-            </div>
-            {/* learn more */}
-            <div className="flex ml-40 mt-5">
-                <button
-                    className="bg-white text-blue-800 px-6 py-3 rounded-lg shadow-md hover:bg-gray-100 transition duration-300"
-                    onClick={handleSplashClick}>
-                    <link rel="stylesheet" href="/Learn"/>
-                    Learn more
-                </button>
-
-            </div>
         </div>
+    </div>
     );
 };
 export default Splash;
