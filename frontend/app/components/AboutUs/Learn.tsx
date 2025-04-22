@@ -19,7 +19,7 @@ const Learn: React.FC = () => {
             </p>
             <h2>Contact Us</h2>
             <p>
-                Have questions or feedback? Feel free to reach out to us at <a href="mailto:support@habittracker.com">support@habittracker.com</a>.
+                Have questions or feedback? Feel free to reach out to us at <a href="#">support@habittracker.com</a>.
             </p>
         </div>
     );

@@ -26,9 +26,9 @@ const Splash: React.FC = () => {
 
     return (
         // splash
-        <div className="cursor-pointer">
+        <div className="mt-15 ">
             {/* text and checklist */}
-            <div className="flex flex-1 m-6">
+            <div className="flex flex-1 flex-col md:flex-row m-3">
                 {/* heading and text */}
                 <div className="flex flex-col m-3 bg-gradient-to-br from-[#00e2a2] to-[#1f8bfe] p-10 rounded-2xl shadow-xl">
                     {/* heading */}
