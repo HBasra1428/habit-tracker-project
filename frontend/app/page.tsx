@@ -6,10 +6,18 @@ import Reminders from "@/app/components/Reminders/Reminders";
 export default function Home() {
     return (
         <div className="bg-white">
-        <Header/><br />
-        <Splash/><br/>
-        <Splash2/><br/>
-        <Footer/>
+            <div>
+                <Header/><br />
+            </div>
+            <div>
+                <Splash/><br/>
+            </div>
+            <div id="goals">
+                <Splash2/><br/>
+            </div>
+            <div>
+                <Footer/>
+            </div>
         </div>
     );
 }
