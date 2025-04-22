@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAdminUser
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
     TokenRefreshView,
@@ -140,6 +141,32 @@ class UserViewSet(viewsets.ModelViewSet):
 class AdminViewSet(viewsets.ModelViewSet):
     queryset = Admin.objects.all()
     serializer_class = AdminSerializer
+
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
+    def make_admin(self, request):
+        
+        # promoting a user to admin
+        
+        user_id = request.data.get('user_id')
+        secure_key = request.data.get('secure_key')
+        user = get_object_or_404(User, id=user_id)
+        user.is_staff = True
+        user.save()
+        Admin.objects.create(user=user, secure_key=secure_key, admin_levels=1)
+        return Response({'message': f'{user.username} is now an Admin'}, status=201)
+
+    @action(detail=False, methods=['post'], permission_classes=[IsAuthenticated])
+    def remove_admin(self, request):
+        
+        # demoting a user from admin
+        
+        user_id = request.data.get('user_id')
+        user = get_object_or_404(User, id=user_id)
+        # removing from Admin table if exists
+        Admin.objects.filter(user=user).delete()
+        user.is_staff = False
+        user.save()
+        return Response({'message': f'{user.username} is no longer an Admin'}, status=200)
     
 # user registration
 class RegisterSerializer(ModelSerializer):
