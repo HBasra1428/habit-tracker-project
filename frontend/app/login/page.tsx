@@ -1,12 +1,10 @@
-"use client";
-
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import api from "@/app/api/api";
 
 const LoginPage = () => {
     const router = useRouter();
-    const [email, setEmail] = useState("");
+    const [username, setUsername] = useState("");  // changed from 'email' to 'username'
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
 
@@ -14,17 +12,23 @@ const LoginPage = () => {
         e.preventDefault();
 
         try {
-            const res = await api.post("token/", {
-                email,
+            
+            // changed the api from token to login, as we will be using login here. Another change i've done is used username instead of email.
+            //  email is optional, just use username for authentication.
+            const res = await api.post("login/", {
+                username,  
                 password,
             });
 
             localStorage.setItem("access", res.data.access);
             localStorage.setItem("refresh", res.data.refresh);
 
+            api.defaults.headers.common["Authorization"] = `Bearer ${res.data.access}`;
+
             alert("Login successful!");
-            router.push("/"); // Redirect to home or dashboard
+            router.push("/");
         } catch (err: any) {
+            console.error("Login error:", err);
             const msg = err.response?.data?.detail || "Login failed";
             setError(msg);
         }
@@ -44,11 +48,11 @@ const LoginPage = () => {
                 {error && <p className="text-red-500 mb-4">{error}</p>}
 
                 <input
-                    type="email"
-                    placeholder="Email"
+                    type="text"  // changed from email to text for username
+                    placeholder="Username"
                     className="w-full p-3 mb-4 mt-4 border border-gray-300 rounded text-gray-500"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}  // Updating 'username' here
                     required
                 />
 
