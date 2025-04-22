@@ -87,7 +87,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'habit_tracker',  
         'USER': 'postgres',
-        'PASSWORD': 'admin',
+        'PASSWORD': 'datadatabase',
         'HOST': 'localhost',
         'PORT': '5432',
     }
