@@ -1,11 +1,26 @@
 'use client';
-import React from 'react';
+addimport React, {useEffect} from 'react';
 import {useRouter} from 'next/navigation';
 import {useState} from "react";
+import api from "@/app/api/api";
 import Learn from "@/app/components/AboutUs/Learn";
 
 const Splash: React.FC = () => {
     const router = useRouter();
+    const [streak, setStreak] = useState<number | null>(null);
+    useEffect(() => {
+        const fetchStreak = async () => {
+            try {
+                const res = await api.get("streak/"); // adjust to your real endpoint
+                setStreak(res.data.current_streak || 0); // or however your backend responds
+            } catch (err) {
+                console.error("Failed to fetch streak", err);
+            }
+        };
+
+        fetchStreak();
+    }, []);
+
 
     const handleSplashClick = () => {
         router.push('/Learn');
@@ -16,6 +31,7 @@ const Splash: React.FC = () => {
         {id: 3, name: "Drink 2L Water", completed: false},
     ]);
 
+    // @ts-ignore
     const toggleHabit = (id) => {
         setHabits((prev) =>
             prev.map((habit) =>
@@ -43,7 +59,14 @@ const Splash: React.FC = () => {
                         </p>
                     </nav>
                 </div>
-
+                {/* streak div */}
+                <div className="bg-white text-blue-800 p-6 w-[20%] rounded-2xl shadow-md border border-[#1f8bfe] m-3 ">
+                    <h2 className="text-lg font-semibold mb-2"> Daily Streak</h2>
+                    <p className="text-3xl font-bold text-blue-800">
+                        {streak !== null ? `${streak} Days` : "Loading..."}
+                    </p>
+                    <p className="text-sm text-gray-600">Keep it going!</p>
+                </div>
                 {/* checklist div*/}
                 <div
                     className="bg-white text-blue-800 p-6 rounded-2xl shadow-md max-w-md w-full border border-[#1f8bfe] m-3 ">
