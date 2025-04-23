@@ -84,11 +84,11 @@ WSGI_APPLICATION = 'habit_tracker_backend.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'habit_tracker',  
-        'USER': 'postgres',
-        'PASSWORD': 'datadatabase',
-        'HOST': 'localhost',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'postgres',  
+        'USER': 'postgres.dockoldaijjwxslhnyed',
+        'PASSWORD': 'a280vKzYhCnlZrNS',
+        'HOST': 'aws-0-ca-central-1.pooler.supabase.com',
         'PORT': '5432',
     }
 }
