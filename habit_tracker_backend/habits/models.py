@@ -48,15 +48,6 @@ class Habit(models.Model):
         ('completed', 'Completed'),
     ]
     
-    DAYS_OF_WEEK = [
-        ('Mon', 'Monday'),
-        ('Tue', 'Tuesday'),
-        ('Wed', 'Wednesday'),
-        ('Thu', 'Thursday'),
-        ('Fri', 'Friday'),
-        ('Sat', 'Saturday'),
-        ('Sun', 'Sunday'),
-    ]
 
     habit_id = models.AutoField(primary_key=True)
     name = models.CharField(max_length=255)
@@ -66,19 +57,36 @@ class Habit(models.Model):
     end_date = models.DateField(null=True, blank=True)
     
     # changed to link to Django User instead of Person
-    user = models.ForeignKey(User, related_name='habits', on_delete=models.CASCADE)
-    group = models.ForeignKey(Group, related_name='habits', on_delete=models.SET_NULL, null=True, blank=True)
-    
-    repeat_days = ArrayField(
-        models.CharField(max_length=3, choices=DAYS_OF_WEEK),
-        blank=True,
-        default=list
-    )
-    
+    user = models.ForeignKey(User, related_name='habits', on_delete=models.CASCADE)    
     target_days_per_week = models.PositiveIntegerField(null=True, blank=True)
-    current_streak = models.PositiveIntegerField(default=0)
-    longest_streak = models.PositiveIntegerField(default=0)
-    created_at = models.DateTimeField(auto_now_add=True)
+
+    def get_current_streak(self):
+        logs = self.logs.order_by('-date')
+        today = timezone.now().date()
+        streak = 0
+
+        for i, log in enumerate(logs):
+            expected_date = today - timedelta(days=i)
+            if log.date == expected_date:
+                streak += 1
+            else:
+                break
+        return streak
+    
+    def get_longest_streak(self):
+        logs = self.logs.order_by('date')
+        longest = 0
+        current = 0
+        previous_date = None
+
+        for log in logs:
+            if previous_date and (log.date - previous_date).days == 1:
+                current += 1
+            else:
+                current = 1
+            longest = max(longest, current)
+            previous_date = log.date
+        return longest
 
     def check_and_reset_streak(self):
         today = timezone.now().date()
@@ -121,16 +129,14 @@ class Goals(models.Model):
     ]
     
     goal_id = models.AutoField(primary_key=True)
-    target = models.CharField(max_length=100)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     description = models.TextField(blank=True)
     user = models.ForeignKey(User, related_name='goals', on_delete=models.CASCADE)
     habit = models.ForeignKey(Habit, related_name='goals', on_delete=models.CASCADE, null=True, blank=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    target_date = models.DateField(null=True, blank=True)
+    target = models.DateField(null=True, blank=True)
 
     def __str__(self):
-        return self.target
+        return self.description
 
 class Reminder(models.Model):
     FREQUENCY_CHOICES = [
@@ -169,8 +175,6 @@ class RewardsPenalties(models.Model):
     type = models.CharField(max_length=20, choices=TYPE_CHOICES)
     description = models.TextField()
     user = models.ForeignKey(User, related_name='rewards_penalties', on_delete=models.CASCADE)
-    date_assigned = models.DateTimeField(auto_now_add=True)
-    is_redeemed = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.type} for {self.user.username}"
@@ -180,16 +184,11 @@ class Streak(models.Model):
     start_time = models.DateTimeField()
     end_time = models.DateTimeField(null=True, blank=True)
     user = models.ForeignKey(User, related_name='streaks', on_delete=models.CASCADE)
-    habit = models.ForeignKey(Habit, related_name='streaks', on_delete=models.CASCADE, null=True, blank=True)
     group = models.ForeignKey(Group, related_name='streaks', on_delete=models.CASCADE, null=True, blank=True)
     length = models.PositiveIntegerField(default=0)
 
     def __str__(self):
         base = f"Streak of {self.length} days"
-        if self.habit:
-            return f"{base} for {self.habit.name}"
-        elif self.group:
-            return f"{base} for {self.group.name}"
         return f"{base} for {self.user.username}"
 
 class Achievement(models.Model):
@@ -198,9 +197,7 @@ class Achievement(models.Model):
     locked_status = models.BooleanField(default=True)
     description = models.TextField()
     user = models.ForeignKey(User, related_name='achievements', on_delete=models.CASCADE)
-    streak = models.ForeignKey(Streak, related_name='achievements', on_delete=models.SET_NULL, null=True, blank=True)
-    date_unlocked = models.DateTimeField(null=True, blank=True)
-    
+ 
     def __str__(self):
         status = "Locked" if self.locked_status else "Unlocked"
         return f"{self.name} ({status}) - {self.user.username}"

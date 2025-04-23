@@ -121,8 +121,8 @@ class UserViewSet(viewsets.ModelViewSet):
         for habit in habits:
             streak_data.append({
                 'habit_name': habit.name,
-                'current_streak': habit.current_streak,
-                'longest_streak': habit.longest_streak,
+                'current_streak': habit.get_current_streak(),
+                'longest_streak': habit.get_longest_streak(),
             })
         return streak_data
 
@@ -248,35 +248,27 @@ class HabitViewSet(viewsets.ModelViewSet):
         
         notes = request.data.get('notes', '')
         HabitLog.objects.create(habit=habit, date=today, notes=notes)
-        
-        yesterday = today - timedelta(days=1)
-        if HabitLog.objects.filter(habit=habit, date=yesterday).exists():
-            habit.current_streak += 1
-        else:
-            habit.current_streak = 1  # restart streak
-        
-        # update longest streak if needed
-        if habit.current_streak > habit.longest_streak:
-            habit.longest_streak = habit.current_streak
-            
-            # updating users strek as well
+
+        current_streak = habit.get_current_streak()
+        longest_streak = habit.get_longest_streak()
+
         person = habit.user.person
-        if habit.longest_streak > person.longest_streak:
-            person.longest_streak = habit.longest_streak
+        if longest_streak > person.longest_streak:
+            person.longest_streak = longest_streak
             person.save()
             
         habit.save()
         
         # Check for achievements based on streak milestones
-        self._check_streak_achievements(habit)
+        self.checker_streak_achievements(habit)
         
         return Response({
             'message': 'Habit marked as done!', 
-            'current_streak': habit.current_streak, 
-            'longest_streak': habit.longest_streak
+    'current_streak': habit.get_current_streak(), 
+    'longest_streak': habit.get_longest_streak()
         }, status=status.HTTP_200_OK)
         
-    def _check_streak_achievements(self, habit):
+    def checker_streak_achievements(self, habit):
         milestone_map = {  # have to think the names for these achievements and then update them later on 
             7: "Weekly achievement",
             30: "Monthly achievement",
@@ -308,7 +300,6 @@ class HabitViewSet(viewsets.ModelViewSet):
                         description=f"Maintained a streak of {days} days for {habit.name}",
                         user=habit.user,
                         locked_status=False,
-                        streak=streak,
                         date_unlocked=datetime.now()
                     )
 
