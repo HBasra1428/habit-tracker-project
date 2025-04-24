@@ -94,8 +94,8 @@ class Habit(models.Model):
         weekday = today.strftime('%a')
 
     # only resetting it if the habit is supposed to be active today
-        if self.repeat_days and weekday not in self.repeat_days:
-            return  # if the habit is not scheduled today, do nothing
+        #if self.repeat_days and weekday not in self.repeat_days:
+            #return  # if the habit is not scheduled today, do nothing
 
         logged_today = self.logs.filter(date=today).exists()
         logged_yesterday = self.logs.filter(date=yesterday).exists()
