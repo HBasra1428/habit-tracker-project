@@ -197,6 +197,8 @@ class Achievement(models.Model):
     locked_status = models.BooleanField(default=True)
     description = models.TextField()
     user = models.ForeignKey(User, related_name='achievements', on_delete=models.CASCADE)
+    streaks = models.ManyToManyField(Streak, related_name='achievements', blank=True)
+
  
     def __str__(self):
         status = "Locked" if self.locked_status else "Unlocked"
