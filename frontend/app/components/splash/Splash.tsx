@@ -4,9 +4,16 @@ import {useRouter} from 'next/navigation';
 import api from "@/app/api/api";
 import Learn from "@/app/components/AboutUs/Learn";
 import HabitStreaks from "@/app/components/HabitStreaks/HabitStreaks";
+import {Plus} from 'lucide-react'; // install if not present
+import { Trash2 } from 'lucide-react';
+
+
 
 const Splash: React.FC = () => {
     const router = useRouter();
+    const [showForm, setShowForm] = useState(false);
+    const [newHabitName, setNewHabitName] = useState("");
+    const [newHabitDesc, setNewHabitDesc] = useState("");
 
     const handleSplashClick = () => {
         router.push('/Learn');
@@ -23,14 +30,21 @@ const Splash: React.FC = () => {
     useEffect(() => {
         const fetchHabits = async () => {
             try {
-                const res = await api.get('/habits/?status=active'); // or customize this
-                const fetchedHabits = res.data.map((habit: any) => ({
-                    id: habit.habit_id,
-                    name: habit.name,
-                    completed: false, // We'll check this in the next step
-                }));
-                console.log(fetchedHabits);
-                setHabits(fetchedHabits);
+                const res = await api.get('/habits/?status=active');
+                const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+
+                const habitsWithStatus = await Promise.all(
+                    res.data.map(async (habit: any) => {
+                        const logRes = await api.get(`/habit-logs/?habit_id=${habit.habit_id}&start_date=${today}&end_date=${today}`);
+                        return {
+                            id: habit.habit_id,
+                            name: habit.name,
+                            completed: logRes.data.length > 0,
+                        };
+                    })
+                );
+
+                setHabits(habitsWithStatus);
             } catch (err) {
                 console.error("Failed to fetch habits:", err);
             }
@@ -38,6 +52,39 @@ const Splash: React.FC = () => {
 
         fetchHabits();
     }, []);
+
+    const deleteHabit = async (id: number) => {
+        try {
+            await api.delete(`/habits/${id}/`);
+            setHabits((prev) => prev.filter((habit) => habit.id !== id));
+        } catch (err) {
+            console.error("Error deleting habit:", err);
+        }
+    };
+
+
+    const handleAddHabit = async () => {
+        if (!newHabitName.trim()) return;
+        try {
+            const res = await api.post("/habits/", {
+                name: newHabitName,
+                description: newHabitDesc,
+                status: "active", // you can tweak this
+            });
+
+            setHabits(prev => [...prev, {
+                id: res.data.habit_id,  // ensure you're getting back the habit_id
+                name: res.data.name,
+                completed: false,
+            }]);
+
+            setNewHabitName("");
+            setNewHabitDesc("");
+            setShowForm(false);
+        } catch (err) {
+            console.error("Error adding habit:", err);
+        }
+    };
 
     const toggleHabit = async (id: number) => {
         const habit = habits.find(h => h.id === id);
@@ -48,15 +95,22 @@ const Splash: React.FC = () => {
                 notes: "Marked as done from checklist",
             });
 
-            setHabits((prev) =>
-                prev.map((h) =>
+            setHabits(prev =>
+                prev.map(h =>
                     h.id === id ? {...h, completed: true} : h
                 )
             );
+
+            //  Trigger streak refresh
+            if (typeof window !== "undefined") {
+                const event = new CustomEvent("refresh-streaks");
+                window.dispatchEvent(event);
+            }
         } catch (err) {
             console.error("Error marking habit done:", err);
         }
     };
+
 
     return (
         <div className="mt-15">
@@ -83,28 +137,68 @@ const Splash: React.FC = () => {
                 {/* Today's Habit Checklist */}
                 <div
                     className="bg-white text-black p-6 rounded-2xl shadow-md max-w-md w-full border border-[#1f8bfe] m-3">
-                    <h2 className="text-xl font-bold mb-4">Today's Habit Checklist</h2>
+                    <div className="flex items-center justify-between mb-4">
+                        <h2 className="text-xl font-bold">Today's Habit Checklist</h2>
+                        <button
+                            onClick={() => setShowForm(!showForm)}
+                            className="text-blue-500 hover:text-blue-700"
+                            aria-label="Add Habit"
+                        >
+                            <Plus/>
+                        </button>
+                    </div>
+
+                    {showForm && (
+                        <div className="mb-4 space-y-2">
+                            <input
+                                type="text"
+                                value={newHabitName}
+                                onChange={(e) => setNewHabitName(e.target.value)}
+                                placeholder="Habit name"
+                                className="w-full p-2 border rounded"
+                            />
+                            <input
+                                type="text"
+                                value={newHabitDesc}
+                                onChange={(e) => setNewHabitDesc(e.target.value)}
+                                placeholder="Description (optional)"
+                                className="w-full p-2 border rounded"
+                            />
+                            <button
+                                onClick={handleAddHabit}
+                                className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+                            >
+                                Add
+                            </button>
+                        </div>
+                    )}
                     <ul className="space-y-3">
                         {habits.map((habit) => (
-                            <li key={habit.id} className="flex items-center gap-3">
-                                <input
-                                    type="checkbox"
-                                    checked={habit.completed}
-                                    onChange={() => toggleHabit(habit.id)}
-                                    disabled={habit.completed}
-                                    className="w-5 h-5 accent-green-400 border border-blue-400"
-                                />
-
-                                <span
-                                    className={`text-base ${
-                                        habit.completed ? "line-through text-gray-500" : ""
-                                    }`}
-                                >
-                                    {habit.name}
-                                </span>
+                            <li key={habit.id} className="flex items-center justify-between gap-3">
+                                <div className="flex items-center gap-3">
+                                    <input
+                                        type="checkbox"
+                                        checked={habit.completed}
+                                        onChange={() => toggleHabit(habit.id)}
+                                        disabled={habit.completed}
+                                        className="w-5 h-5 accent-green-400 border border-blue-400"
+                                    />
+                                    <span
+                                        className={`text-base ${
+                                            habit.completed ? "line-through text-gray-500" : ""
+                                        }`}
+                                    >
+      {habit.name}
+    </span>
+                                </div>
+                                <button onClick={() => deleteHabit(habit.id)} className="text-red-500 hover:text-red-700">
+                                    <Trash2 size={18} />
+                                </button>
                             </li>
+
                         ))}
                     </ul>
+
                 </div>
             </div>
         </div>

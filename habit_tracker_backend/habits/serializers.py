@@ -27,7 +27,13 @@ class GroupSerializer(serializers.ModelSerializer):
 class HabitSerializer(serializers.ModelSerializer):
     class Meta:
         model = Habit
-        fields = '__all__'
+        fields = ['habit_id', 'name', 'description', 'status', 'start_date', 'end_date']  # include only what's needed
+        read_only_fields = ['habit_id', 'start_date', 'end_date']
+
+    def create(self, validated_data):
+        validated_data['user'] = self.context['request'].user  # ✅ assign current user
+        return super().create(validated_data)
+
 
 class HabitLogSerializer(serializers.ModelSerializer):
     class Meta:

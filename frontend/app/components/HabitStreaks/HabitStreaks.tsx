@@ -13,22 +13,31 @@ const Streaks: React.FC = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
+    const fetchStreaks = async () => {
+        try {
+            const response = await api.get('/users/me/dashboard/');
+            console.log("Dashboard data:", response.data); // for debugging
+            const data = response.data.streak_data || [];
+            setStreaks(Array.isArray(data) ? data : Object.values(data));
+        } catch (err) {
+            console.log("Error fetching streaks:", err);
+            setError("Could not fetch streak data.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
     useEffect(() => {
-        const fetchStreaks = async () => {
-            try {
-                const response = await api.get('/users/me/dashboard/');
-                console.log("Dashboard data:", response.data); // for debugging
-                const data = response.data.streak_data || [];
-                setStreaks(Array.isArray(data) ? data : Object.values(data)); // just in case
-            } catch (err) {
-                console.log("Error fetching streaks:", err);
-                setError("Could not fetch streak data.");
-            } finally {
-                setLoading(false);
-            }
+        fetchStreaks();
+
+        // ✅ Listen for custom refresh event
+        const handleRefresh = () => {
+            setLoading(true);
+            fetchStreaks();
         };
 
-        fetchStreaks();
+        window.addEventListener('refresh-streaks', handleRefresh);
+        return () => window.removeEventListener('refresh-streaks', handleRefresh);
     }, []);
 
     if (loading) {

@@ -101,7 +101,7 @@ class Habit(models.Model):
         logged_yesterday = self.logs.filter(date=yesterday).exists()
 
         if not logged_today and not logged_yesterday:
-            if self.current_streak > 0:
+            if self.get_current_streak() > 0:
                 self.current_streak = 0
                 self.save()
             

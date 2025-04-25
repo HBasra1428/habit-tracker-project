@@ -234,21 +234,22 @@ class GroupViewSet(viewsets.ModelViewSet):
 class HabitViewSet(viewsets.ModelViewSet):
     queryset = Habit.objects.all()
     serializer_class = HabitSerializer
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        queryset = Habit.objects.all()
-        user_id = self.request.query_params.get('user_id')
+        user = self.request.user
+        queryset = Habit.objects.filter(user=user)
+
         group_id = self.request.query_params.get('group_id')
         status_param = self.request.query_params.get('status')
 
-        if user_id:
-            queryset = queryset.filter(user__id=user_id)
         if group_id:
             queryset = queryset.filter(group__id=group_id)
         if status_param:
             queryset = queryset.filter(status=status_param)
 
         return queryset
+
 
     def list(self, request, *args, **kwargs):
         habits = self.get_queryset()
@@ -271,7 +272,7 @@ class HabitViewSet(viewsets.ModelViewSet):
         current_streak = habit.get_current_streak()
         longest_streak = habit.get_longest_streak()
 
-        person = habit.user.person
+        person = habit.user.profile
         if longest_streak > person.longest_streak:
             person.longest_streak = longest_streak
             person.save()
@@ -296,7 +297,7 @@ class HabitViewSet(viewsets.ModelViewSet):
         }
 
         for days, name in milestone_map.items():
-            if habit.current_streak >= days:
+            if habit.get_current_streak() >= days:
                 # checks if this achievement already exists
                 achievement_exists = Achievement.objects.filter(
                     user=habit.user,
@@ -334,7 +335,7 @@ class HabitLogViewSet(viewsets.ModelViewSet):
         end_date = self.request.query_params.get('end_date')
 
         if habit_id:
-            queryset = queryset.filter(habit__id=habit_id)
+            queryset = queryset.filter(habit=habit_id)
         if start_date:
             queryset = queryset.filter(date__gte=start_date)
         if end_date:
@@ -371,3 +372,8 @@ class StreakViewSet(viewsets.ModelViewSet):
 class AchievementViewSet(viewsets.ModelViewSet):
     queryset = Achievement.objects.all()
     serializer_class = AchievementSerializer
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated], url_path='me')
+    def user_achievements(self, request):
+        achievements = Achievement.objects.filter(user=request.user)
+        serializer = self.get_serializer(achievements, many=True)
+        return Response(serializer.data)
