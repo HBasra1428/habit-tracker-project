@@ -20,7 +20,6 @@ function Header() {
             <nav className="hidden md:flex gap-6 text-gray-700 font-medium">
                 <Link href='/' className="hover:text-blue-800">Home</Link>
                 <Link href='#' className="hover:text-blue-800">My Habits</Link>
-                <Link href='#goals' className="hover:text-blue-800">Goals</Link>
                 <Link href='#' className="hover:text-blue-800">Groups</Link>
             </nav>
 
