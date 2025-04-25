@@ -30,21 +30,19 @@ const Splash: React.FC = () => {
     useEffect(() => {
         const fetchHabits = async () => {
             try {
-                const res = await api.get('/habits/?status=active');
-                const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+                const [habitsRes, logsRes] = await Promise.all([
+                    api.get('/habits/?status=active'),
+                    api.get('/habit-logs/today/')
+                ]);
+                const doneTodayIds: number[] = logsRes.data;
 
-                const habitsWithStatus = await Promise.all(
-                    res.data.map(async (habit: any) => {
-                        const logRes = await api.get(`/habit-logs/?habit_id=${habit.habit_id}&start_date=${today}&end_date=${today}`);
-                        return {
-                            id: habit.habit_id,
-                            name: habit.name,
-                            completed: logRes.data.length > 0,
-                        };
-                    })
-                );
+                const fetchedHabits = habitsRes.data.map((habit: any) => ({
+                    id: habit.habit_id,
+                    name: habit.name,
+                    completed: doneTodayIds.includes(habit.habit_id),
+                }));
 
-                setHabits(habitsWithStatus);
+                setHabits(fetchedHabits);
             } catch (err) {
                 console.error("Failed to fetch habits:", err);
             }

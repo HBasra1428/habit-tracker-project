@@ -42,7 +42,7 @@ const Streaks: React.FC = () => {
 
     if (loading) {
         return (
-            <div className="bg-white p-6 rounded-2xl shadow-md border border-blue-300 w-full md:w-[400px] m-3">
+            <div className="bg-white text-black p-6 rounded-2xl shadow-md max-w-md w-70 border border-[#1f8bfe]">
                 <p className="text-gray-500">Loading streaks...</p>
             </div>
         );
@@ -67,8 +67,8 @@ const Streaks: React.FC = () => {
                         <li key={index} className="flex justify-between text-sm">
                             <div className="font-medium">{streak.habit_name}</div>
                             <div className="text-right">
-                                <p className="font-bold text-blue-900">{streak.current_streak} day streak</p>
-                                <p className="text-gray-500 text-xs">Longest: {streak.longest_streak} days</p>
+                                <p className="font-bold text-blue-900">{streak.current_streak}</p>
+                                <p className="text-gray-500 text-xs">Longest: {streak.longest_streak}</p>
                             </div>
                         </li>
                     ))}

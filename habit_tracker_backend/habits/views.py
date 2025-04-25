@@ -343,6 +343,13 @@ class HabitLogViewSet(viewsets.ModelViewSet):
 
         return queryset
 
+    @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated], url_path='today')
+    def today_logs(self, request):
+        today = date.today()
+        logs = HabitLog.objects.filter(habit__user=request.user, date=today)
+        return Response([log.habit.habit_id for log in logs])
+
+
 
 class GoalsViewSet(viewsets.ModelViewSet):
     queryset = Goals.objects.all()
@@ -352,6 +359,10 @@ class GoalsViewSet(viewsets.ModelViewSet):
 class ReminderViewSet(viewsets.ModelViewSet):
     queryset = Reminder.objects.all()
     serializer_class = ReminderSerializer
+    permission_classes = [IsAuthenticated]
+    def get_queryset(self):
+        return Reminder.objects.filter(habit__user=self.request.user)
+
 
 
 class CommentViewSet(viewsets.ModelViewSet):
