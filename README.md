@@ -46,3 +46,61 @@ It focuses on modular design, clean RESTful API communication, and secure JWT-ba
 ```bash
 git clone https://github.com/HBasra1428/habit-tracker-project.git
 cd habit-tracker-project
+```
+###2️⃣ Setup the Backend
+```bash
+cd habit_tracker_backend
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver
+```
+The backend will start at http://127.0.0.1:8000/
+3️⃣ Setup the Frontend
+```bash
+cd frontend
+npm install
+npm run dev
+```
+The frontend will start at http://localhost:3000/
+
+##🧭 Folder Structure
+```plaintext
+habit-tracker-project/
+├── frontend/                # Next.js frontend
+│   ├── components/          # Reusable UI components
+│   ├── pages/               # App routes
+│   ├── styles/              # Styling (Tailwind / global CSS)
+│   └── utils/               # Frontend utilities
+│
+├── habit_tracker_backend/   # Django backend
+│   ├── api/                 # REST API endpoints
+│   ├── models/              # Database models
+│   ├── serializers/         # Django REST serializers
+│   └── settings.py          # Configuration
+│
+└── README.md
+```
+📸 Screenshots (Optional)
+Dashboard	Habit Details
+	
+
+    (Replace with actual screenshots when available.)
+## 🤝 Contributing
+
+Contributions are welcome!
+
+To contribute:
+1. Fork this repository  
+2. Create a feature branch (`feature/your-feature-name`)  
+3. Commit your changes  
+4. Push to your branch  
+5. Open a Pull Request
+
+##👤 Author
+
+#Himanshu Basra
+🎓 Computer Science @ University of Calgary
+# Surkhab Singh
+🎓 Computer Science @ University of Calgary
+# Sufian Tariq
+🎓 Computer Science @ University of Calgary
