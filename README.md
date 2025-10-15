@@ -96,11 +96,11 @@ To contribute:
 4. Push to your branch  
 5. Open a Pull Request
 
-##👤 Author
 
-#Himanshu Basra
+## 👤 Authors
+### Himanshu Basra
 🎓 Computer Science @ University of Calgary
-# Surkhab Singh
+### Surkhab Singh
 🎓 Computer Science @ University of Calgary
-# Sufian Tariq
+### Sufian Tariq
 🎓 Computer Science @ University of Calgary
